@@ -1,6 +1,6 @@
 {
   "name": "@suchipi/babel-highlight-kleur",
-  "version": "7.22.5",
+  "version": "7.22.6",
   "description": "Fork of @babel/highlight which uses kleur instead of chalk",
   "author": "Lily Skye <me@suchipi.com>",
   "license": "MIT",
