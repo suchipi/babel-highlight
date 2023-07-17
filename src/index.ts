@@ -33,12 +33,23 @@ type Token = {
   value: string;
 };
 
+export type StyleFunction = (str: string) => string;
+export type Styles = {
+  keyword: StyleFunction;
+  capitalized: StyleFunction;
+  jsxIdentifier: StyleFunction;
+  punctuator: StyleFunction;
+  number: StyleFunction;
+  string: StyleFunction;
+  regex: StyleFunction;
+  comment: StyleFunction;
+  invalid: StyleFunction;
+};
+
 /**
  * Kleur styles for token types.
  */
-function getDefs(
-  kleur: typeof ourKleur,
-): Record<InternalTokenType, (str: string) => string> {
+function getStyles(kleur: typeof ourKleur): Styles {
   return {
     keyword: kleur.cyan,
     capitalized: kleur.yellow,
@@ -180,6 +191,7 @@ function highlightTokens(
 type Options = {
   forceColor?: boolean;
   kleur?: typeof ourKleur;
+  styles?: Styles;
 };
 
 /**
@@ -191,19 +203,20 @@ export default function highlight(code: string, options: Options = {}): string {
   }
 
   const kleur = options.kleur ?? ourKleur;
+  const styles = options.styles || getStyles(kleur);
 
   if (options.forceColor) {
     const kleurEnabledBefore = kleur.enabled;
     kleur.enabled = true;
     let result: string;
     try {
-      result = highlightTokens(getDefs(kleur), code);
+      result = highlightTokens(styles, code);
     } finally {
       kleur.enabled = kleurEnabledBefore;
     }
     return result;
   } else if (kleur.enabled) {
-    return highlightTokens(getDefs(kleur), code);
+    return highlightTokens(styles, code);
   } else {
     return code;
   }
