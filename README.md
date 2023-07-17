@@ -1,3 +1,3 @@
-# `@suchipi/babel-highlight-kleur`
+# `@suchipi/babel-highlight`
 
-Fork of [`@babel/highlight`](https://babeljs.io/docs/babel-highlight) which uses [`kleur`](https://www.npmjs.com/package/kleur) instead of [`chalk`](https://www.npmjs.com/package/chalk).
+Fork of [`@babel/highlight`](https://babeljs.io/docs/babel-highlight) which uses user-provided string styling/colorization functions instead of [`chalk`](https://www.npmjs.com/package/chalk).

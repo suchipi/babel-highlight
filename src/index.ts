@@ -4,7 +4,6 @@ import {
   isStrictReservedWord,
   isKeyword,
 } from "@babel/helper-validator-identifier";
-import type kleur from "kleur";
 
 /**
  * Names that are always allowed as identifiers, but also appear as keywords
@@ -35,33 +34,16 @@ type Token = {
 
 export type StyleFunction = (str: string) => string;
 export type Styles = {
-  keyword: StyleFunction;
-  capitalized: StyleFunction;
-  jsxIdentifier: StyleFunction;
-  punctuator: StyleFunction;
-  number: StyleFunction;
-  string: StyleFunction;
-  regex: StyleFunction;
-  comment: StyleFunction;
-  invalid: StyleFunction;
+  keyword?: StyleFunction;
+  capitalized?: StyleFunction;
+  jsxIdentifier?: StyleFunction;
+  punctuator?: StyleFunction;
+  number?: StyleFunction;
+  string?: StyleFunction;
+  regex?: StyleFunction;
+  comment?: StyleFunction;
+  invalid?: StyleFunction;
 };
-
-/**
- * Kleur styles for token types.
- */
-function getStyles(kleur: kleur.Kleur): Styles {
-  return {
-    keyword: kleur.cyan,
-    capitalized: kleur.yellow,
-    jsxIdentifier: kleur.yellow,
-    punctuator: kleur.yellow,
-    number: kleur.magenta,
-    string: kleur.green,
-    regex: kleur.magenta,
-    comment: kleur.grey,
-    invalid: kleur.white().bgRed().bold,
-  };
-}
 
 /**
  * RegExp to test for newlines in terminal.
@@ -165,16 +147,13 @@ const tokenize = function* (text: string): Generator<Token> {
 };
 
 /**
- * Highlight `text` using the token definitions in `defs`.
+ * Highlight `code` using the token-to-style-function object `styles`.
  */
-function highlightTokens(
-  defs: Record<string, (str: string) => string>,
-  text: string,
-) {
+export default function highlight(code: string, styles: Styles = {}) {
   let highlighted = "";
 
-  for (const { type, value } of tokenize(text)) {
-    const colorize = defs[type];
+  for (const { type, value } of tokenize(code)) {
+    const colorize = styles[type];
     if (colorize) {
       highlighted += value
         .split(NEWLINE)
@@ -186,38 +165,4 @@ function highlightTokens(
   }
 
   return highlighted;
-}
-
-type Options = {
-  forceColor?: boolean;
-  kleur?: kleur.Kleur & { enabled: boolean };
-  styles?: Styles;
-};
-
-/**
- * Highlight `code`.
- */
-export default function highlight(code: string, options: Options = {}): string {
-  if (code === "") {
-    return code;
-  }
-
-  const kleur = options.kleur ?? require("kleur");
-  const styles = options.styles || getStyles(kleur);
-
-  if (options.forceColor) {
-    const kleurEnabledBefore = kleur.enabled;
-    kleur.enabled = true;
-    let result: string;
-    try {
-      result = highlightTokens(styles, code);
-    } finally {
-      kleur.enabled = kleurEnabledBefore;
-    }
-    return result;
-  } else if (kleur.enabled) {
-    return highlightTokens(styles, code);
-  } else {
-    return code;
-  }
 }

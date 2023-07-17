@@ -1,50 +1,14 @@
-import { test, expect, beforeEach } from "vitest";
-import kleur from "kleur";
+import { test, expect } from "vitest";
 import highlight from "./index";
-
-beforeEach(() => {
-  kleur.enabled = true;
-});
+import kleur from "kleur";
 
 const code = `
 const something = 5;
 console.log("hello there!")
 `.trim();
 
-test("highlight", () => {
-  kleur.enabled = true;
-  const result = highlight(code);
-  expect(result).toMatchInlineSnapshot(`
-    "[36mconst[39m something [33m=[39m [35m5[39m[33m;[39m
-    console[33m.[39mlog([32m\\"hello there!\\"[39m)"
-  `);
-
-  kleur.enabled = false;
-  const result2 = highlight(code);
-  expect(result2).toMatchInlineSnapshot(`
-    "const something = 5;
-    console.log(\\"hello there!\\")"
-  `);
-});
-
-test("forceColor", () => {
-  kleur.enabled = false;
-  const result = highlight(code);
-  expect(result).toMatchInlineSnapshot(`
-    "const something = 5;
-    console.log(\\"hello there!\\")"
-  `);
-
-  const result2 = highlight(code, { forceColor: true });
-  expect(result2).toMatchInlineSnapshot(`
-    "[36mconst[39m something [33m=[39m [35m5[39m[33m;[39m
-    console[33m.[39mlog([32m\\"hello there!\\"[39m)"
-  `);
-  expect(kleur.enabled).toBe(false);
-});
-
-test("custom styles", () => {
-  const myStyles = {
+test("highlight - tag styles", () => {
+  const tagStyles = {
     keyword: (str: string) => `<keyword>${str}</keyword>`,
     capitalized: (str: string) => `<capitalized>${str}</capitalized>`,
     jsxIdentifier: (str: string) => `<jsxIdentifier>${str}</jsxIdentifier>`,
@@ -56,9 +20,30 @@ test("custom styles", () => {
     invalid: (str: string) => `<invalid>${str}</invalid>`,
   };
 
-  const result = highlight(code, { styles: myStyles });
+  const result = highlight(code, tagStyles);
   expect(result).toMatchInlineSnapshot(`
     "<keyword>const</keyword> something <punctuator>=</punctuator> <number>5</number><punctuator>;</punctuator>
     console<punctuator>.</punctuator>log(<string>\\"hello there!\\"</string>)"
+  `);
+});
+
+test("highlight - ansi color styles", () => {
+  kleur.enabled = true;
+  const colorStyles = {
+    keyword: kleur.white,
+    capitalized: kleur.blue,
+    jsxIdentifier: kleur.green,
+    punctuator: kleur.red,
+    number: kleur.magenta,
+    string: kleur.bgYellow().black,
+    regex: kleur.bgYellow().red,
+    comment: kleur.dim,
+    invalid: kleur.bgRed().white,
+  };
+
+  const result = highlight(code, colorStyles);
+  expect(result).toMatchInlineSnapshot(`
+    "[37mconst[39m something [31m=[39m [35m5[39m[31m;[39m
+    console[31m.[39mlog([43m[30m\\"hello there!\\"[49m[39m)"
   `);
 });
