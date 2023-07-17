@@ -4,7 +4,7 @@ import {
   isStrictReservedWord,
   isKeyword,
 } from "@babel/helper-validator-identifier";
-import ourKleur from "kleur";
+import type kleur from "kleur";
 
 /**
  * Names that are always allowed as identifiers, but also appear as keywords
@@ -49,7 +49,7 @@ export type Styles = {
 /**
  * Kleur styles for token types.
  */
-function getStyles(kleur: typeof ourKleur): Styles {
+function getStyles(kleur: kleur.Kleur): Styles {
   return {
     keyword: kleur.cyan,
     capitalized: kleur.yellow,
@@ -190,7 +190,7 @@ function highlightTokens(
 
 type Options = {
   forceColor?: boolean;
-  kleur?: typeof ourKleur;
+  kleur?: kleur.Kleur & { enabled: boolean };
   styles?: Styles;
 };
 
@@ -202,7 +202,7 @@ export default function highlight(code: string, options: Options = {}): string {
     return code;
   }
 
-  const kleur = options.kleur ?? ourKleur;
+  const kleur = options.kleur ?? require("kleur");
   const styles = options.styles || getStyles(kleur);
 
   if (options.forceColor) {
